@@ -16,3 +16,4 @@ npx skills add https://github.com/harsh2204/agent-skills/tree/main/picasso
 | Skill   | Install |
 |--------|--------|
 | Picasso | `npx skills add https://github.com/harsh2204/agent-skills/tree/main/picasso` |
+| Archimedes | `npx skills add https://github.com/harsh2204/agent-skills/tree/main/archimedes` |
