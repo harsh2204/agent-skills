@@ -1,64 +1,17 @@
-# Examples: Common Extension Patterns
+# After the scaffold
 
-Patterns for extending the scaffolded project beyond the base setup.
+Extensions. Each block is done when the listed files exist and the command (if any) has been run.
 
-## Adding GitHub OAuth
+## Session
 
-### 1. Update environment
-
-```env
-GITHUB_CLIENT_ID=your_client_id
-GITHUB_CLIENT_SECRET=your_client_secret
-```
-
-### 2. Update `src/lib/auth.ts`
-
-```typescript
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db";
-
-export const auth = betterAuth({
-  database: drizzleAdapter(db, { provider: "sqlite" }),
-  emailAndPassword: { enabled: true },
-  socialProviders: {
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    },
-  },
-});
-```
-
-### 3. Client usage
-
-```typescript
-import { signIn } from "@/lib/auth-client";
-
-// In a component
-<Button onClick={() => signIn.social({ provider: "github" })}>
-  Sign in with GitHub
-</Button>
-```
-
-No schema changes needed — better-auth stores OAuth accounts in the existing `account` table.
-
----
-
-## Adding a Protected Dashboard Layout
-
-### `src/app/(protected)/layout.tsx`
+### RSC
 
 ```typescript
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function ProtectedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function DashboardPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -67,99 +20,19 @@ export default async function ProtectedLayout({
     redirect("/sign-in");
   }
 
-  return <>{children}</>;
+  return <div>Welcome, {session.user.name}</div>;
 }
 ```
 
-### `src/app/(protected)/dashboard/page.tsx`
-
-```typescript
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-
-export default async function DashboardPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
-      <p className="text-muted-foreground mt-2">
-        Welcome back, {session!.user.name}
-      </p>
-    </div>
-  );
-}
-```
-
----
-
-## Adding a New Database Table
-
-Example: adding a `projects` table.
-
-### 1. Create schema file `src/db/schema/projects.ts`
-
-```typescript
-import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { user } from "./auth";
-
-export const projects = sqliteTable("projects", {
-  id: int().primaryKey({ autoIncrement: true }),
-  name: text().notNull(),
-  description: text(),
-  ownerId: text()
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  createdAt: int({ mode: "timestamp" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
-```
-
-### 2. Export from barrel `src/db/schema/index.ts`
-
-```typescript
-export * from "./auth";
-export * from "./projects";
-```
-
-### 3. Push to database
-
-```bash
-bunx drizzle-kit push
-```
-
-### 4. Query in a server component
-
-```typescript
-import { db } from "@/db";
-import { projects } from "@/db/schema";
-import { eq } from "drizzle-orm";
-
-const userProjects = await db
-  .select()
-  .from(projects)
-  .where(eq(projects.ownerId, session.user.id));
-```
-
----
-
-## Server Actions with Auth
-
-### `src/app/(protected)/dashboard/actions.ts`
+### Server action
 
 ```typescript
 "use server";
 
 import { auth } from "@/lib/auth";
-import { db } from "@/db";
-import { projects } from "@/db/schema";
 import { headers } from "next/headers";
-import { revalidatePath } from "next/cache";
 
-export async function createProject(formData: FormData) {
+export async function protectedAction() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -167,23 +40,189 @@ export async function createProject(formData: FormData) {
   if (!session) {
     throw new Error("Unauthorized");
   }
-
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string;
-
-  await db.insert(projects).values({
-    name,
-    description,
-    ownerId: session.user.id,
-  });
-
-  revalidatePath("/dashboard");
 }
 ```
 
----
+### Client
 
-## Sign-Out Button
+```typescript
+"use client";
+
+import { useSession } from "@/lib/auth-client";
+
+export function UserProfile() {
+  const { data: session, isPending } = useSession();
+
+  if (isPending) return <div>Loading...</div>;
+  if (!session) return <div>Not signed in</div>;
+
+  return <div>Hello, {session.user.name}</div>;
+}
+```
+
+## Sign-in
+
+```typescript
+"use client";
+
+import { useState } from "react";
+import { signIn } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export function SignInForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    await signIn.email(
+      { email, password },
+      {
+        onSuccess: () => {
+          window.location.href = "/dashboard";
+        },
+        onError: (ctx) => {
+          setError(ctx.error.message);
+          setLoading(false);
+        },
+      }
+    );
+  }
+
+  return (
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>Sign In</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+## Sign-up
+
+```typescript
+"use client";
+
+import { useState } from "react";
+import { signUp } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export function SignUpForm() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    await signUp.email(
+      { name, email, password },
+      {
+        onSuccess: () => {
+          window.location.href = "/dashboard";
+        },
+        onError: (ctx) => {
+          setError(ctx.error.message);
+          setLoading(false);
+        },
+      }
+    );
+  }
+
+  return (
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>Create Account</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+            />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Creating account..." : "Sign Up"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+## Sign-out
 
 ```typescript
 "use client";
@@ -212,35 +251,162 @@ export function SignOutButton() {
 }
 ```
 
----
+## GitHub OAuth
 
-## Adding shadcn Components
+Add to `.env.local`:
 
-Install commonly needed components in one shot:
-
-```bash
-bunx --bun shadcn@latest add button card input label form separator avatar dropdown-menu sonner
+```env
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
 ```
 
-For a full auth-ready UI set:
+Then extend `src/lib/auth.ts`:
+
+```typescript
+socialProviders: {
+  github: {
+    clientId: process.env.GITHUB_CLIENT_ID!,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+  },
+},
+```
+
+Client: `signIn.social({ provider: "github" })`. The existing `account` table stores the link.
+
+## Protected layout
+
+`src/app/(protected)/layout.tsx`:
+
+```typescript
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+
+export default async function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
+  return <>{children}</>;
+}
+```
+
+Cookie-only gate (optimistic — still verify in the RSC): `src/middleware.ts`
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+
+const PROTECTED_ROUTES = ["/dashboard", "/settings", "/profile"];
+const AUTH_ROUTES = ["/sign-in", "/sign-up"];
+
+export function middleware(request: NextRequest) {
+  const sessionCookie = request.cookies.get("better-auth.session_token");
+  const { pathname } = request.nextUrl;
+
+  const isProtected = PROTECTED_ROUTES.some((route) =>
+    pathname.startsWith(route)
+  );
+  const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
+
+  if (isProtected && !sessionCookie) {
+    return NextResponse.redirect(new URL("/sign-in", request.url));
+  }
+
+  if (isAuthRoute && sessionCookie) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/dashboard/:path*", "/settings/:path*", "/profile/:path*", "/sign-in", "/sign-up"],
+};
+```
+
+## New table
+
+`src/db/schema/projects.ts`:
+
+```typescript
+import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { user } from "./auth";
+
+export const projects = sqliteTable("projects", {
+  id: int().primaryKey({ autoIncrement: true }),
+  name: text().notNull(),
+  description: text(),
+  ownerId: text()
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: int({ mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+```
+
+Export from `src/db/schema/index.ts`, then `bunx drizzle-kit push`.
+
+Query:
+
+```typescript
+import { db } from "@/db";
+import { projects } from "@/db/schema";
+import { eq } from "drizzle-orm";
+
+const userProjects = await db
+  .select()
+  .from(projects)
+  .where(eq(projects.ownerId, session.user.id));
+```
+
+Insert from a server action after `getSession`:
+
+```typescript
+"use server";
+
+import { auth } from "@/lib/auth";
+import { db } from "@/db";
+import { projects } from "@/db/schema";
+import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
+
+export async function createProject(formData: FormData) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  await db.insert(projects).values({
+    name: formData.get("name") as string,
+    description: formData.get("description") as string,
+    ownerId: session.user.id,
+  });
+
+  revalidatePath("/dashboard");
+}
+```
+
+## shadcn set
 
 ```bash
 bunx --bun shadcn@latest add button card input label form tabs separator avatar dropdown-menu sheet sidebar sonner badge
 ```
 
----
+## Turso
 
-## Switching to Turso (Remote SQLite)
-
-If the project outgrows local SQLite:
-
-### 1. Install libsql client
-
-```bash
-bun add @libsql/client
-```
-
-### 2. Update `src/db/index.ts`
+`bun add @libsql/client`, then `src/db/index.ts`:
 
 ```typescript
 import { drizzle } from "drizzle-orm/libsql";
@@ -255,27 +421,4 @@ export const db = drizzle({
 });
 ```
 
-### 3. Update `drizzle.config.ts`
-
-```typescript
-import { defineConfig } from "drizzle-kit";
-
-export default defineConfig({
-  out: "./drizzle",
-  schema: "./src/db/schema",
-  dialect: "turso",
-  dbCredentials: {
-    url: process.env.TURSO_DATABASE_URL!,
-    authToken: process.env.TURSO_AUTH_TOKEN!,
-  },
-});
-```
-
-### 4. Update env
-
-```env
-TURSO_DATABASE_URL=libsql://your-db.turso.io
-TURSO_AUTH_TOKEN=your-token
-```
-
-No changes needed to schema files, auth config, or queries.
+`drizzle.config.ts`: `dialect: "turso"` and `dbCredentials: { url, authToken }` from those env vars. Schema, auth, and queries stay as-is.

@@ -1,263 +1,31 @@
 ---
 name: archimedes
-description: "Archimedes is the Full-Stack Architect. Scaffolds production-ready Next.js projects with Bun, shadcn/ui, better-auth, Drizzle ORM, and SQLite. Use when creating a new project, bootstrapping a full-stack app, setting up authentication with better-auth, initializing Next.js with Drizzle and SQLite, or when the user mentions scaffolding, project setup, new app, or starter template. Triggers on: new project, scaffold, bootstrap, create app, fullstack setup, nextjs starter, project init."
+description: Scaffolds a production Next.js app with Bun, shadcn/ui, better-auth, Drizzle ORM, and SQLite. Use when creating a new full-stack app or initializing this stack.
 ---
 
-# Archimedes: Full-Stack Architect
+# Archimedes
 
-Give me a lever and a place to stand, and I will scaffold the world. Production-ready Next.js with Bun, shadcn/ui, better-auth, Drizzle ORM, and SQLite.
+Scaffold Next.js with Bun, shadcn/ui, better-auth, Drizzle, and SQLite. File bodies live in [reference.md](reference.md).
 
-## Stack
+## Workflow
 
-| Layer | Tool | Purpose |
-|-------|------|---------|
-| Runtime | Bun | Package manager & JS runtime |
-| Framework | Next.js (App Router) | React framework with SSR/RSC |
-| UI | shadcn/ui + Tailwind CSS | Component library |
-| Auth | better-auth | Self-hosted authentication |
-| ORM | Drizzle ORM | Type-safe database access |
-| Database | SQLite (via `bun:sqlite`) | Embedded database |
+Tick each step. Done means the criterion holds.
 
-## Scaffolding Workflow
+1. **Create the app** — `bun create next-app@latest <name> --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --turbopack --use-bun` then `cd`. Done when App Router + Tailwind exist.
+2. **Init shadcn** — `bunx --bun shadcn@latest init -d` (drop `-d` if the user named a style). Done when `components.json` exists.
+3. **Install** — `bun add better-auth drizzle-orm` and `bun add -D drizzle-kit @types/bun`. Done when both appear in `package.json`.
+4. **Env** — `.env.local` with `BETTER_AUTH_SECRET` from `openssl rand -base64 32`, `BETTER_AUTH_URL=http://localhost:3000`, `DB_FILE_NAME=sqlite.db`. Gitignore `*.db` and `*.db-journal`. Done when the secret is a real value.
+5. **Drizzle** — Write `src/db/index.ts`, `src/db/schema/index.ts`, placeholder `src/db/schema/auth.ts`, and `drizzle.config.ts`. Done when `db` exports a `bun:sqlite` Drizzle client wired to `./schema`.
+6. **better-auth** — Write `src/lib/auth.ts` (email/password + drizzle sqlite adapter + session `cookieCache`). `bunx @better-auth/cli@latest generate --output src/db/schema/auth.ts`. Done when that file has `user`, `session`, `account`, and `verification`.
+7. **Auth route** — `src/app/api/auth/[...all]/route.ts` via `toNextJsHandler`. Done when GET and POST export from that file.
+8. **Auth client** — `src/lib/auth-client.ts` exporting `signIn`, `signUp`, `signOut`, `useSession`.
+9. **Push schema** — `bunx drizzle-kit push`. Done when `sqlite.db` exists. Use `generate` + `migrate` for production.
+10. **Scripts** — Add `db:push`, `db:generate`, `db:migrate`, `db:studio` to `package.json`.
 
-Copy this checklist and track progress:
+## Verify
 
-```
-Task Progress:
-- [ ] Step 1: Create Next.js project
-- [ ] Step 2: Initialize shadcn/ui
-- [ ] Step 3: Install dependencies
-- [ ] Step 4: Set up environment variables
-- [ ] Step 5: Configure Drizzle ORM + SQLite
-- [ ] Step 6: Configure better-auth
-- [ ] Step 7: Create auth API route
-- [ ] Step 8: Create auth client
-- [ ] Step 9: Push database schema
-- [ ] Step 10: Add package.json scripts
-```
+`bun run dev`. Done when `http://localhost:3000` loads, `/api/auth/ok` responds, and `sqlite.db` is on disk.
 
-### Step 1: Create Next.js Project
+## After
 
-Always start fresh. Use non-interactive mode with all defaults:
-
-```bash
-bun create next-app@latest <project-name> --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --turbopack --use-bun
-```
-
-Then `cd` into the project directory.
-
-### Step 2: Initialize shadcn/ui
-
-```bash
-bunx --bun shadcn@latest init -d
-```
-
-The `-d` flag uses defaults (New York style, Zinc color, CSS variables enabled). If the user wants customization, drop the `-d` flag.
-
-### Step 3: Install Dependencies
-
-```bash
-bun add better-auth drizzle-orm
-bun add -D drizzle-kit @types/bun
-```
-
-### Step 4: Set Up Environment Variables
-
-Create `.env.local`:
-
-```env
-BETTER_AUTH_SECRET=<generate-with-openssl-rand-base64-32>
-BETTER_AUTH_URL=http://localhost:3000
-DB_FILE_NAME=sqlite.db
-```
-
-Generate the secret:
-
-```bash
-openssl rand -base64 32
-```
-
-Add to `.gitignore`:
-
-```
-*.db
-*.db-journal
-```
-
-### Step 5: Configure Drizzle ORM + SQLite
-
-**Create `src/db/index.ts`** — database connection:
-
-```typescript
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import { Database } from "bun:sqlite";
-import * as schema from "./schema";
-
-const sqlite = new Database(process.env.DB_FILE_NAME!);
-export const db = drizzle({ client: sqlite, schema });
-```
-
-**Create `src/db/schema/index.ts`** — re-export all schema files:
-
-```typescript
-export * from "./auth";
-```
-
-**Create `src/db/schema/auth.ts`** — will be populated by better-auth CLI in Step 6.
-
-Leave empty for now (placeholder):
-
-```typescript
-// Generated by better-auth CLI — do not edit manually
-```
-
-**Create `drizzle.config.ts`** in project root:
-
-```typescript
-import { defineConfig } from "drizzle-kit";
-
-export default defineConfig({
-  out: "./drizzle",
-  schema: "./src/db/schema",
-  dialect: "sqlite",
-  dbCredentials: {
-    url: process.env.DB_FILE_NAME!,
-  },
-});
-```
-
-### Step 6: Configure better-auth
-
-**Create `src/lib/auth.ts`** — server-side auth instance:
-
-```typescript
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db";
-
-export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "sqlite",
-  }),
-  emailAndPassword: {
-    enabled: true,
-  },
-});
-```
-
-**Generate the auth schema into Drizzle format:**
-
-```bash
-bunx @better-auth/cli@latest generate --output src/db/schema/auth.ts
-```
-
-This populates `src/db/schema/auth.ts` with the required `user`, `session`, `account`, and `verification` tables.
-
-### Step 7: Create Auth API Route
-
-**Create `src/app/api/auth/[...all]/route.ts`:**
-
-```typescript
-import { auth } from "@/lib/auth";
-import { toNextJsHandler } from "better-auth/next-js";
-
-export const { GET, POST } = toNextJsHandler(auth);
-```
-
-### Step 8: Create Auth Client
-
-**Create `src/lib/auth-client.ts`** — client-side auth:
-
-```typescript
-import { createAuthClient } from "better-auth/react";
-
-export const authClient = createAuthClient();
-
-export const { signIn, signUp, signOut, useSession } = authClient;
-```
-
-### Step 9: Push Database Schema
-
-For local development, use `push` for fast iteration:
-
-```bash
-bunx drizzle-kit push
-```
-
-For production workflows, use generate + migrate:
-
-```bash
-bunx drizzle-kit generate
-bunx drizzle-kit migrate
-```
-
-### Step 10: Add Package.json Scripts
-
-Add these to `package.json` scripts:
-
-```json
-{
-  "scripts": {
-    "db:push": "drizzle-kit push",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
-  }
-}
-```
-
-## Final Project Structure
-
-```
-<project-name>/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   └── auth/
-│   │   │       └── [...all]/
-│   │   │           └── route.ts      # better-auth handler
-│   │   ├── layout.tsx
-│   │   └── page.tsx
-│   ├── components/
-│   │   └── ui/                        # shadcn components
-│   ├── db/
-│   │   ├── index.ts                   # drizzle connection
-│   │   └── schema/
-│   │       ├── index.ts               # barrel export
-│   │       └── auth.ts                # better-auth tables
-│   └── lib/
-│       ├── auth.ts                    # better-auth server instance
-│       ├── auth-client.ts             # better-auth client instance
-│       └── utils.ts                   # shadcn cn() utility
-├── drizzle/                           # migration files
-├── drizzle.config.ts
-├── .env.local
-├── components.json                    # shadcn config
-├── package.json
-└── tsconfig.json
-```
-
-## Verification
-
-After scaffolding, verify the setup:
-
-```bash
-bun run dev
-```
-
-Then confirm:
-1. App loads at `http://localhost:3000`
-2. Auth endpoint responds at `http://localhost:3000/api/auth/ok`
-3. Database file `sqlite.db` is created
-
-## Common Next Steps
-
-After scaffolding, users typically want to:
-
-- **Add UI components**: `bunx --bun shadcn@latest add button card input label`
-- **Build auth pages**: Sign-in / sign-up forms using `signIn.email()` and `signUp.email()`
-- **Protect routes**: Use `auth.api.getSession()` server-side
-- **Add OAuth providers**: GitHub, Google, etc. via better-auth social providers
-- **Add application schemas**: New tables in `src/db/schema/`
-
-For detailed code templates and extension patterns, see [reference.md](reference.md).
+OAuth, protected routes, auth pages, new tables, Turso: [examples.md](examples.md).

@@ -1,12 +1,8 @@
-# Picasso Texture & Pattern Library
+# Texture
 
-Backgrounds are never flat. Every Picasso output has depth. Pick technique(s) from below.
+Backgrounds are stacked. Order, bottom to top: base gradient → pattern at low opacity → grain at 2–4% (`mix-blend-mode: overlay`) → vignette → content. Overlays: `position: fixed; pointer-events: none;` plus a high `z-index`.
 
----
-
-## 1. Film Grain Noise (SVG)
-
-Organic texture. Works on any background. Apply as pseudo-element overlay.
+## Grain
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
@@ -18,8 +14,6 @@ Organic texture. Works on any background. Apply as pseudo-element overlay.
 </svg>
 ```
 
-**CSS usage** (inline as data URI or reference file):
-
 ```css
 .grain-overlay::after {
   content: '';
@@ -30,17 +24,12 @@ Organic texture. Works on any background. Apply as pseudo-element overlay.
   z-index: 9999;
   mix-blend-mode: overlay;
   background: url('data:image/svg+xml,...') repeat;
-  /* or background: url('assets/grain.svg') repeat; */
 }
 ```
 
-Dial `opacity` from `0.02` (barely there) to `0.08` (gritty).
+Opacity `0.02` (whisper) to `0.08` (grit).
 
----
-
-## 2. Scanlines
-
-CRT / retro monitor feel. Pure CSS.
+## Scanlines
 
 ```css
 .scanlines::after {
@@ -59,24 +48,16 @@ CRT / retro monitor feel. Pure CSS.
 }
 ```
 
-For colored scanlines (green phosphor): replace `rgba(0,0,0,0.08)` with `rgba(0,255,65,0.03)`.
+Phosphor: `rgba(0, 255, 65, 0.03)`.
 
----
-
-## 3. Dot Grid
-
-Engineering paper / blueprint / grid feel. Pure CSS.
+## Dot grid / crosshair
 
 ```css
 .dot-grid {
   background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
   background-size: 24px 24px;
 }
-```
 
-For a crosshair grid:
-
-```css
 .cross-grid {
   background-image:
     linear-gradient(var(--border) 1px, transparent 1px),
@@ -85,11 +66,7 @@ For a crosshair grid:
 }
 ```
 
----
-
-## 4. Mesh Gradient
-
-Organic, blobby color blending. Use multiple radial-gradients positioned differently.
+## Mesh
 
 ```css
 .mesh-gradient {
@@ -101,13 +78,9 @@ Organic, blobby color blending. Use multiple radial-gradients positioned differe
 }
 ```
 
-Animate with slow `background-position` shifts for living backgrounds.
+Shift `background-position` slowly for a living field.
 
----
-
-## 5. CRT Vignette
-
-Dark edges, bright center. Simulates curved CRT glass.
+## CRT vignette
 
 ```css
 .crt-vignette::before {
@@ -116,19 +89,11 @@ Dark edges, bright center. Simulates curved CRT glass.
   inset: 0;
   pointer-events: none;
   z-index: 9997;
-  background: radial-gradient(
-    ellipse at center,
-    transparent 50%,
-    rgba(0, 0, 0, 0.5) 100%
-  );
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.5) 100%);
 }
 ```
 
----
-
-## 6. Halftone Dots
-
-Print / pop-art texture. SVG-based.
+## Halftone
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
@@ -136,13 +101,7 @@ Print / pop-art texture. SVG-based.
 </svg>
 ```
 
-For comic-book halftone, vary `r` based on position (use multiple circles with different radii).
-
----
-
-## 7. Diagonal Stripes
-
-Warning / industrial / construction tape feel.
+## Stripes
 
 ```css
 .stripes {
@@ -156,13 +115,9 @@ Warning / industrial / construction tape feel.
 }
 ```
 
-For thick hazard stripes, use `var(--accent)` at higher opacity with 20px bands.
+Hazard: `var(--accent)` at higher opacity, 20px bands.
 
----
-
-## 8. Frosted Glass (Glassmorphism)
-
-Depth through blur. Requires layered content behind.
+## Frost
 
 ```css
 .frost {
@@ -170,17 +125,12 @@ Depth through blur. Requires layered content behind.
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   background: rgba(17, 25, 40, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
 }
 ```
 
-Layer over a mesh gradient or image for best effect.
+Sits on a mesh or an image.
 
----
-
-## 9. Noise Dots (Original SVG Pattern)
-
-Simple tileable noise via SVG pattern.
+## Noise dots
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -201,11 +151,7 @@ Simple tileable noise via SVG pattern.
 </svg>
 ```
 
----
-
-## 10. Animated Gradient Shift
-
-Living background that slowly morphs.
+## Living gradient
 
 ```css
 @keyframes gradientShift {
@@ -220,17 +166,3 @@ Living background that slowly morphs.
   animation: gradientShift 15s ease infinite;
 }
 ```
-
----
-
-## Layering Strategy
-
-Stack multiple textures for richness. Order (bottom to top):
-
-1. **Base gradient** (mesh or linear)
-2. **Pattern overlay** (dots, grid, stripes) — low opacity
-3. **Noise / grain** — 2-4% opacity, `mix-blend-mode: overlay`
-4. **Vignette** — edges only
-5. **Content** — your actual UI
-
-Use `position: fixed` + `pointer-events: none` + high `z-index` for overlays that cover everything.

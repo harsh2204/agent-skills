@@ -1,112 +1,82 @@
-# Anti-Slop Detection Guide
+# Slop checks
 
-This is the blacklist. These are the patterns that make AI-generated UIs instantly recognizable as generic machine output. **Detect and reject every one.**
+Run every row before ship. A hit means iterate that layer, then rescore the rubric in [SKILL.md](SKILL.md).
 
----
+## Typography
 
-## The Generic AI Aesthetic (What We're Fighting)
+| Detect | Replace with |
+|--------|----------------|
+| Inter, Arial, Roboto, Helvetica as the only face | A charactered pairing from [fonts.md](fonts.md) |
+| One weight (400 or 700) | 300 with 800, or 100 with 900 |
+| System stack on the hero | A display face at hero size |
+| Default letter-spacing everywhere | Tight headlines (`-0.03em`), tracked labels (`0.15em`) |
+| Space Grotesk, Poppins, or Outfit as the "distinctive" pick | Anything else in [fonts.md](fonts.md) |
+| Two sizes only (`48px` / `16px`) | A full `clamp()` scale |
 
-You know it when you see it: a purple-to-blue gradient hero, Inter font at 400 weight, `border-radius: 9999px` on everything, a grid of 3 identical feature cards with emoji icons, a "Get Started" button in a rounded pill, and just... nothing. No opinion. No identity. No soul.
+## Color
 
-That's slop. Here's the specific anatomy:
+| Detect | Replace with |
+|--------|----------------|
+| Purple-to-blue hero gradient | A palette derived from this project's DNA |
+| `#1a1a2e` / `#0f0f23` / indigo-500 (`#6366f1`) | Deep brown, green, warm black, or navy from the aesthetic |
+| Blue CTA on white | An accent that belongs to this palette |
+| `#666` on `#fff` | Warm or cool greys tinted to the palette |
+| Rainbow gradient text on every heading | One gradient, one element |
+| Flat `#000` or `#111` as the whole page | Layered surfaces, texture, a subtle gradient |
 
----
+## Layout
 
-## Typography Slop
+| Detect | Replace with |
+|--------|----------------|
+| Three equal feature cards | Asymmetric sizes, a broken grid |
+| Perfect 12-column symmetry | `2fr 1fr`, overlap, offset |
+| Hero → Features → Testimonials → CTA → Footer | An interrupted scroll — one section that breaks the pattern |
+| One `max-width: 1200px` for every section | Full-bleed next to narrow |
+| Uniform `p-8` rhythm | Tight clusters, generous breaks |
+| `border-radius: 12px` + light shadow on every card | Sharp, thick-bordered, or a larger radius with intent |
 
-| Pattern | Why It's Slop | Instead |
-|---------|---------------|---------|
-| Inter, Arial, Roboto, Helvetica as sole font | Default. Invisible. Says nothing. | Pick a font with *character* from [fonts.md](fonts.md) |
-| Single font weight (400 or 700 only) | No visual hierarchy | Use 300+800 or 100+900 extremes |
-| System font stack as hero text | Lazy | Display font for hero, always |
-| Default letter-spacing everywhere | Undesigned | Tight headlines, tracked labels |
-| Space Grotesk as the "unique" choice | It's the #1 AI crutch font. Everyone uses it now. | Literally anything else |
-| Poppins/Outfit as the "friendly" choice | Overused to meaninglessness | Nunito, Quicksand, Josefin Sans |
-| `font-size: 48px` hero, `16px` body, nothing else | Two-size typography is a wireframe | Build a full type scale with `clamp()` |
+## Components
 
----
+| Detect | Replace with |
+|--------|----------------|
+| Pill buttons on every action | Buttons that match the aesthetic (sharp, underlined, block) |
+| Emoji as feature icons (✨ 🚀 💡) | Custom SVG, CSS shapes, or a stylized set |
+| Avatar-row social proof | Designed testimonials, or omit |
+| Gradient-border + blur on the same card | One technique, committed |
+| iOS-clone toggles | Toggles styled to this aesthetic |
+| Hamburger on desktop | Sidebar, top links, or a command palette |
 
-## Color Slop
+## Motion
 
-| Pattern | Why It's Slop | Instead |
-|---------|---------------|---------|
-| Purple-to-blue gradient background | THE AI signature. Instant tell. | Derive palette from project context |
-| `#1a1a2e` or `#0f0f23` dark backgrounds | The three most common AI dark BGs | Deep browns, greens, warm blacks, navy |
-| Indigo-500 (`#6366f1`) as primary accent | Tailwind default. Everyone uses it. | Pick from aesthetic profile palettes |
-| Blue CTA button on white background | SaaS template #1 | Any color that isn't default blue |
-| Grey text on white (`#666 on #fff`) | Zero commitment to a palette | Warm or cool-tinted greys that match your palette |
-| Rainbow gradient text on everything | Gimmick without taste | One gradient, one element, earned |
-| Dark mode = `#000000` or `#111111` flat | Depthless void | Layered backgrounds, textures, subtle gradients |
+| Detect | Replace with |
+|--------|----------------|
+| The same `fade-in` on every node | Staggered, directional, or clip-based reveals |
+| Global `transition: all 0.3s ease` | Duration and easing per element type |
+| Bobbing hero illustration | Scroll-driven or interaction-driven motion |
+| Parallax with no depth job | Parallax only when it creates depth |
+| Still page | Staggered entrance plus hover states, minimum |
 
----
+## Copy
 
-## Layout Slop
+| Detect | Replace with |
+|--------|----------------|
+| "Welcome to [App]" | A line that carries this product's personality |
+| "Get Started" / "Learn More" / "Sign Up" | An action this product owns |
+| "Fast. Secure. Reliable." | A real benefit, or skip the triad |
+| Lorem ipsum in shipped output | Real or realistic copy that fits the theme |
 
-| Pattern | Why It's Slop | Instead |
-|---------|---------------|---------|
-| 3-column feature grid with equal cards | Every landing page generator | Asymmetric, varied card sizes, break the grid |
-| Perfect 12-column symmetry | Safe and boring | 2fr/1fr, overlapping, offset elements |
-| Hero → Features → Testimonials → CTA → Footer | The SaaS template assembly line | Surprise the scroll. Interrupt the pattern. |
-| `max-width: 1200px` centered container for everything | One-note layout | Vary container widths per section. Full-bleed + narrow |
-| Equal padding/margin everywhere (e.g., `p-8` on everything) | No rhythm, no hierarchy | Vary spacing: tight clusters, generous breaks |
-| Cards with `border-radius: 12px` + light shadow | The Tailwind UI default | Sharp corners, thick borders, or larger radius with intent |
+## Smell test
 
----
+Every answer is yes:
 
-## Component Slop
+1. Swap Inter and Tailwind indigo in — does the page become a different site?
+2. Strip the copy — does the design still have a nameable identity?
+3. Would a designer name this project, not a template?
 
-| Pattern | Why It's Slop | Instead |
-|---------|---------------|---------|
-| Pill-shaped buttons everywhere | The "modern" default | Buttons that match the aesthetic (sharp brutalist, underlined editorial) |
-| Emoji as feature icons (✨ 🚀 💡) | Zero design effort | Custom SVG, CSS shapes, or stylized icon sets |
-| Avatar circles in a row for "social proof" | Generic trust signal | Real design for testimonials or skip them |
-| Gradient border + blur card combo | AI's favorite trick | Pick ONE technique and commit to it |
-| Toggle switches that all look like iOS | Platform mimicry is not design | Custom toggles styled to your aesthetic |
-| Hamburger menu on desktop | Mobile pattern forced everywhere | Creative desktop nav (sidebar, top links, command palette) |
+## If a check fails mid-build
 
----
-
-## Motion Slop
-
-| Pattern | Why It's Slop | Instead |
-|---------|---------------|---------|
-| `fade-in` on everything | The minimum viable animation | Staggered, directional, clip-based reveals |
-| `transition: all 0.3s ease` globally | Undifferentiated. Every element moves the same | Different durations and easings per element type |
-| Floating/bobbing hero illustration | Trendy in 2023, stale now | Motion that responds to content (scroll-driven, interaction-driven) |
-| Parallax for the sake of parallax | If it doesn't serve the content, it's decoration | Parallax only if it creates meaningful depth |
-| No motion at all | Equally bad — feels static, dead | At minimum: staggered entrance + hover states |
-
----
-
-## Content/Copy Slop
-
-| Pattern | Why It's Slop | Instead |
-|---------|---------------|---------|
-| "Welcome to [App]" as hero text | Says nothing | A statement that conveys the product's personality |
-| "Get Started" / "Learn More" / "Sign Up" buttons | Generic CTA | Action-specific: "Start Building", "See the Code", "Enter the Void" |
-| "Fast. Secure. Reliable." three-word features | Meaningless triad | Real benefits or skip feature lists entirely |
-| Lorem ipsum in any shipped output | Unfinished is not a style | Real or realistic placeholder content that fits the theme |
-
----
-
-## The Smell Test
-
-Before shipping, ask:
-
-1. **"Have I seen this exact layout on a Vercel template?"** → If yes, change it.
-2. **"Could I swap in Inter and Tailwind Indigo and nobody would notice?"** → If yes, your aesthetic isn't strong enough.
-3. **"Would a designer look at this and say 'AI made this'?"** → If yes, find the generic parts and kill them.
-4. **"Does this look like it was made FOR this specific project?"** → If no, the design intelligence step was skipped.
-5. **"If I remove the content, does the design itself have identity?"** → If no, the styling is just a container, not a design.
-
----
-
-## Rehabilitation Techniques
-
-If you catch yourself slipping into slop mid-build:
-
-1. **Font swap**: Replace the safe font with something from the display category in [fonts.md](fonts.md). Immediately transforms the feel.
-2. **Background surgery**: Replace flat color with a layered technique from [patterns.md](patterns.md). Add grain or gradient.
-3. **Break one thing**: Take the most symmetrical element and make it asymmetric. Overlap something. Rotate a label.
-4. **Add a surprise**: One element the user doesn't expect — a custom cursor, an ASCII art comment, a hover easter egg, a loading animation, a scroll-triggered shift.
-5. **Commit to the bit**: If the aesthetic is "terminal", go ALL IN. Prompt characters, monospace everything, green on black, scanlines. Half-measures create blandness.
+1. Swap the display face from [fonts.md](fonts.md).
+2. Replace the flat background with a stack from [patterns.md](patterns.md).
+3. Break the most symmetrical element — overlap, offset, or rotate a label.
+4. Add one surprise the aesthetic owns.
+5. Commit to the bit: if it is terminal, it is prompts, mono, phosphor, scanlines.
