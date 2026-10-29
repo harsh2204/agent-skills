@@ -55,6 +55,21 @@ Run every row before ship. A hit means iterate that layer, then rescore the rubr
 | Bobbing hero illustration | Scroll-driven or interaction-driven motion |
 | Parallax with no depth job | Parallax only when it creates depth |
 | Still page | Staggered entrance plus hover states, minimum |
+| Showpiece motion on a frequent path (400ms+ hover, animated palette open) | Spend it on a once-moment; keep frequent ones under 200ms or instant |
+| Hero entrance replays on every route change | Play it once per session |
+| Ease-in or bounce on a state change | `--ease-out`; save bounce for celebrations |
+| Element vanishes in one frame | A short exit on `--ease-exit` |
+
+## Finish
+
+| Detect | Replace with |
+|--------|----------------|
+| Button with no pending state | Indicator in the same footprint, `aria-busy`, repeat presses ignored. See [craft.md](craft.md#pending) |
+| Blank panel when there's no data | An on-theme empty state with one sentence and one action |
+| `outline: none` with nothing in its place | One `--focus` ring on `:focus-visible` |
+| "Invalid input" in a gray toast | Words beside the field, in the aesthetic's voice |
+| Hover stuck after a tap on mobile | Hover gated behind `(hover: hover) and (pointer: fine)` |
+| Counter digits jitter | `tabular-nums` |
 
 ## Copy
 
