@@ -1,6 +1,6 @@
 # Motion
 
-Every animation earns a job: entrance, state, feedback, or atmosphere.
+Every animation earns a job: entrance, state, feedback, or atmosphere. Then it earns its place in the [motion budget](SKILL.md#motion-budget): the loud pieces below (slam-in, glitch, clip reveals, typewriter) belong on once-moments, and hovers and presses stay under 200ms.
 
 ## Entrance
 
@@ -67,11 +67,13 @@ Every animation earns a job: entrance, state, feedback, or atmosphere.
 
 ```css
 .card {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out);
 }
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(var(--accent-rgb), 0.15), 0 2px 8px rgba(0, 0, 0, 0.2);
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(var(--accent-rgb), 0.15), 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .btn { position: relative; overflow: hidden; }
@@ -83,7 +85,7 @@ Every animation earns a job: entrance, state, feedback, or atmosphere.
   border-radius: inherit;
   opacity: 0;
   transform: scale(1.1);
-  transition: opacity 0.3s, transform 0.3s;
+  transition: opacity 0.18s, transform 0.18s var(--ease-out);
 }
 .btn:hover::before { opacity: 1; transform: scale(1); }
 
@@ -99,19 +101,58 @@ Every animation earns a job: entrance, state, feedback, or atmosphere.
   position: absolute;
   bottom: -2px;
   left: 0;
-  width: 0;
+  width: 100%;
   height: 2px;
   background: var(--accent);
-  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s var(--ease-out);
+  transform: scaleX(0);
+  transform-origin: left;
 }
-.nav-link:hover::after { width: 100%; }
+.nav-link:hover::after { transform: scaleX(1); }
 
 @keyframes neonPulse {
   0%, 100% { box-shadow: 0 0 8px var(--accent), 0 0 20px rgba(var(--accent-rgb), 0.3); }
   50%      { box-shadow: 0 0 16px var(--accent), 0 0 40px rgba(var(--accent-rgb), 0.5); }
 }
-.neon { animation: neonPulse 2s ease-in-out infinite; }
+.neon { animation: neonPulse 2s ease-in-out infinite; } /* one hero element, never a whole nav */
 ```
+
+Gate every `:hover` above behind `@media (hover: hover) and (pointer: fine)`, the way `.card` is. They're shown ungated here to keep them short.
+
+## Press
+
+```css
+.btn {
+  transition: transform var(--dur-press) var(--ease-out);
+}
+.btn:active { transform: scale(0.97); }
+.btn-icon:active { transform: scale(0.96); }
+
+/* Brutalist: the offset shadow collapses */
+.btn-brutal { box-shadow: 4px 4px 0 var(--border); transition: transform 100ms, box-shadow 100ms; }
+.btn-brutal:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--border); }
+```
+
+Use a transition, not keyframes, so a release mid-press glides back. Skip the press on menu triggers, where the menu opening is the feedback.
+
+## Exit
+
+Exits are quieter than entrances: a short drop and a fade, on their own curve, at 60–75% of the enter duration.
+
+```css
+.toast {
+  transition: opacity var(--dur-overlay) var(--ease-out), translate var(--dur-overlay) var(--ease-out);
+  @starting-style { opacity: 0; translate: 0 16px; }
+}
+.toast.leaving {
+  opacity: 0;
+  translate: 0 8px;
+  transition-duration: 160ms;
+  transition-timing-function: var(--ease-exit);
+}
+```
+
+Popovers grow from their trigger (`transform-origin` on the trigger side) from `scale(0.96)`. Dialogs scale from center.
 
 ## Atmosphere
 
@@ -224,5 +265,37 @@ Fallback: `IntersectionObserver` adds `.visible` at `threshold: 0.1`.
 | Heavy | `cubic-bezier(0.7, 0, 0.3, 1)` |
 | Mechanical | `steps(N)` |
 | Elastic | `cubic-bezier(0.68, -0.55, 0.27, 1.55)` |
+| Exit | `cubic-bezier(0.4, 0, 0.6, 1)` |
 
-Durations: hover 0.15–0.25s · entrance 0.4–0.7s · page 0.6–1s · atmosphere 3–30s.
+Bouncy and Elastic are for once-moments only. Overshoot on a label or a state change looks like a bug. Never use ease-in on anything the person is waiting for.
+
+Durations: press 0.1–0.16s · hover 0.12–0.2s · overlay 0.2–0.3s · hero entrance 0.4–0.7s · page 0.6–1s · atmosphere 3–30s.
+
+## Reduced motion
+
+Reduced motion means fewer and gentler, not none. Keep fades and color changes. Drop travel, scale, 3D, parallax, glitch, and ambient loops.
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+  .stagger > *, .enter, .scroll-reveal { animation: none; opacity: 1; transform: none; }
+  .float, .ember, .deco-spin, .glitch-text, .neon, .parallax-bg { animation: none; }
+}
+```
+
+Then check that every state still reads with nothing moving.
+
+## Performance
+
+- Animate `transform`, `opacity`, `filter`, and `clip-path`. Never animate `width`, `height`, `top`, `left`, `margin`, or `padding`.
+- Name every transitioned property. `transition: all` animates things you didn't mean to and makes the browser track everything.
+- Use `will-change` only on an element with a first-frame hitch you've actually seen, and never as a blanket.
+- Keep `backdrop-filter` and large blurs at rest. Don't animate their radius. Keep transition blur at 2–4px.
+- Fixed overlays (grain, scanlines) are static images, not animated noise. Particle fields cap at a few dozen nodes and pause offscreen.
+- Don't write a pointer-driven value into a CSS variable on a big container, because every descendant recalculates. Set `transform` on the element that moves.
+- Motion that plays during navigation or hydration is CSS or `element.animate()`, not a JS rAF loop on a busy main thread.
+- Switch themes instantly or with a view transition, never `transition: all` at the root.
