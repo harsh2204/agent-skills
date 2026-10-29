@@ -1,0 +1,39 @@
+{
+  "id": "contourframe",
+  "name": "Contour-offset frame, halftone ground",
+  "letter": "M",
+  "spec": {
+    "letter": "M",
+    "style": "display",
+    "fill": "solid",
+    "outline": "none",
+    "frame": {
+      "style": "solid",
+      "shape": "contour"
+    },
+    "ornament": [
+      {
+        "name": "halftone",
+        "falloff": "letter",
+        "pitch": 2.2
+      }
+    ],
+    "palette": "paper",
+    "texture": [],
+    "animate": "ripple",
+    "seed": 4382,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "contourFrame"
+  },
+  "tags": [
+    "recipe",
+    "contourFrame",
+    "halftone",
+    "display",
+    "paper",
+    "contour"
+  ],
+  "created": "2026-10-29T09:04:11.112Z",
+  "notes": "seeded from recipe \"contourFrame\""
+}

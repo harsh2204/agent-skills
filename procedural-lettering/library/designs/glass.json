@@ -1,0 +1,36 @@
+{
+  "id": "glass",
+  "name": "Voronoi stained glass",
+  "letter": "Y",
+  "spec": {
+    "letter": "Y",
+    "style": "blackletter",
+    "fill": "solid",
+    "outline": "keyline",
+    "frame": {
+      "shape": "square",
+      "style": "solid"
+    },
+    "ornament": [
+      {
+        "name": "voronoi"
+      }
+    ],
+    "palette": "glass",
+    "texture": [],
+    "animate": "pop",
+    "seed": 4368,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "glass"
+  },
+  "tags": [
+    "recipe",
+    "glass",
+    "voronoi",
+    "blackletter",
+    "square"
+  ],
+  "created": "2026-10-29T09:04:10.844Z",
+  "notes": "seeded from recipe \"glass\""
+}

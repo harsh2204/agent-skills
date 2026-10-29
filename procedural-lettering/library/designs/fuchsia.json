@@ -1,0 +1,42 @@
+{
+  "id": "fuchsia",
+  "name": "Magenta letter, pink filigree, pink page with blue text",
+  "letter": "N",
+  "spec": {
+    "letter": "N",
+    "style": "roman",
+    "fill": "solid",
+    "outline": "none",
+    "frame": {
+      "shape": "none",
+      "style": "borderless"
+    },
+    "ornament": [
+      {
+        "name": "vines",
+        "stroke": 0.85,
+        "leaves": 0.8,
+        "stars": 1.6,
+        "dots": 1.2,
+        "density": 1.1,
+        "leafLen": 8
+      }
+    ],
+    "palette": "fuchsia",
+    "texture": [],
+    "animate": "auto",
+    "seed": 4305,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "fuchsia"
+  },
+  "tags": [
+    "recipe",
+    "fuchsia",
+    "vines",
+    "roman",
+    "none"
+  ],
+  "created": "2026-10-29T09:04:10.061Z",
+  "notes": "seeded from recipe \"fuchsia\""
+}

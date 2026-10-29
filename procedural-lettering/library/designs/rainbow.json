@@ -1,0 +1,35 @@
+{
+  "id": "rainbow",
+  "name": "Rainbow multi-outline with yellow halo",
+  "letter": "B",
+  "spec": {
+    "letter": "B",
+    "style": "display",
+    "fill": "solid",
+    "outline": "rainbow",
+    "frame": {
+      "shape": "none",
+      "style": "borderless"
+    },
+    "ornament": [],
+    "palette": "rainbow",
+    "texture": [],
+    "animate": "pop",
+    "seed": 4319,
+    "size": 160,
+    "duration": 2500,
+    "outlineOptions": {
+      "rings": 4,
+      "halo": true
+    },
+    "recipe": "rainbow"
+  },
+  "tags": [
+    "recipe",
+    "rainbow",
+    "display",
+    "none"
+  ],
+  "created": "2026-10-29T09:04:10.263Z",
+  "notes": "seeded from recipe \"rainbow\""
+}

@@ -1,0 +1,37 @@
+{
+  "id": "maze",
+  "name": "Ochre interlace tile, dark letter, gold outline",
+  "letter": "Z",
+  "spec": {
+    "letter": "Z",
+    "style": "roman",
+    "fill": "solid",
+    "outline": "keyline",
+    "frame": {
+      "shape": "square",
+      "style": "solid"
+    },
+    "ornament": [
+      {
+        "name": "interlace"
+      }
+    ],
+    "palette": "ochre",
+    "texture": [],
+    "animate": "auto",
+    "seed": 4291,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "maze"
+  },
+  "tags": [
+    "recipe",
+    "maze",
+    "interlace",
+    "roman",
+    "ochre",
+    "square"
+  ],
+  "created": "2026-10-29T09:04:09.864Z",
+  "notes": "seeded from recipe \"maze\""
+}

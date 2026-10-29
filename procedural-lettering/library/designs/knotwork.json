@@ -1,0 +1,36 @@
+{
+  "id": "knotwork",
+  "name": "Celtic knotwork",
+  "letter": "D",
+  "spec": {
+    "letter": "D",
+    "style": "uncial",
+    "fill": "solid",
+    "outline": "keyline",
+    "frame": {
+      "shape": "square",
+      "style": "solid"
+    },
+    "ornament": [
+      {
+        "name": "knotwork"
+      }
+    ],
+    "palette": "moss",
+    "texture": [],
+    "animate": "fade",
+    "seed": 4347,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "knotwork"
+  },
+  "tags": [
+    "recipe",
+    "knotwork",
+    "uncial",
+    "moss",
+    "square"
+  ],
+  "created": "2026-10-29T09:04:10.596Z",
+  "notes": "seeded from recipe \"knotwork\""
+}

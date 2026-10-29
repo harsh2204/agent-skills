@@ -1,0 +1,39 @@
+{
+  "id": "marigold",
+  "name": "Flat yellow square, pale-blue letter, misregistered",
+  "letter": "E",
+  "spec": {
+    "letter": "E",
+    "style": "display",
+    "fill": "solid",
+    "outline": "none",
+    "frame": {
+      "shape": "square",
+      "style": "solid"
+    },
+    "ornament": [
+      {
+        "name": "florets",
+        "density": 1.1
+      }
+    ],
+    "palette": "marigold",
+    "texture": [
+      "misregister"
+    ],
+    "animate": "pop",
+    "seed": 4270,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "marigold"
+  },
+  "tags": [
+    "recipe",
+    "marigold",
+    "florets",
+    "display",
+    "square"
+  ],
+  "created": "2026-10-29T09:04:09.548Z",
+  "notes": "seeded from recipe \"marigold\""
+}

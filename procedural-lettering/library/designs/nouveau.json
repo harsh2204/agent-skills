@@ -1,0 +1,35 @@
+{
+  "id": "nouveau",
+  "name": "Art-nouveau whiplash",
+  "letter": "K",
+  "spec": {
+    "letter": "K",
+    "style": "display",
+    "fill": "solid",
+    "outline": "none",
+    "frame": {
+      "style": "stroked",
+      "shape": "rounded"
+    },
+    "ornament": [
+      {
+        "name": "nouveau"
+      }
+    ],
+    "palette": "nouveau",
+    "texture": [],
+    "animate": "auto",
+    "seed": 4354,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "nouveau"
+  },
+  "tags": [
+    "recipe",
+    "nouveau",
+    "display",
+    "rounded"
+  ],
+  "created": "2026-10-29T09:04:10.680Z",
+  "notes": "seeded from recipe \"nouveau\""
+}

@@ -1,0 +1,32 @@
+{
+  "id": "badge",
+  "name": "Halftone badge, blue letter",
+  "letter": "S",
+  "spec": {
+    "letter": "S",
+    "style": "slab",
+    "fill": "solid",
+    "outline": "badge",
+    "frame": {
+      "shape": "none",
+      "style": "borderless"
+    },
+    "ornament": [],
+    "palette": "cobalt",
+    "texture": [],
+    "animate": "pop",
+    "seed": 4284,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "badge"
+  },
+  "tags": [
+    "recipe",
+    "badge",
+    "slab",
+    "cobalt",
+    "none"
+  ],
+  "created": "2026-10-29T09:04:09.763Z",
+  "notes": "seeded from recipe \"badge\""
+}
