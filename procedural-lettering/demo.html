@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Procedural lettering — illuminated drop caps</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { --page: #F4F0E6; --text: #1d1a16; --rule: #c9bfae; --lh: 1.5; --fs: 19px; }
+  * { box-sizing: border-box; }
+  html { background: var(--page); }
+  body { margin: 0; color: var(--text); font: var(--fs)/var(--lh) "EB Garamond", "Cormorant Garamond", "Crimson Text", Garamond, "Iowan Old Style", "Palatino Linotype", Georgia, serif; }
+  header { position: sticky; top: 0; z-index: 5; display: flex; gap: 12px; align-items: baseline; padding: 10px 24px; background: color-mix(in srgb, var(--page) 88%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--rule); }
+  header h1 { font-size: 1.05rem; font-weight: 500; margin: 0 auto 0 0; letter-spacing: .02em; font-variant: small-caps; }
+  header button { font: inherit; font-size: .9rem; padding: 4px 14px; border: 1px solid currentColor; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
+  header button:hover { background: var(--text); color: var(--page); }
+  header .seed { font-variant-numeric: tabular-nums; font-size: .9rem; opacity: .7; min-width: 7ch; }
+  section.chapter { padding: 56px 24px 64px; background: var(--page); color: var(--text); border-bottom: 1px solid var(--rule); }
+  .chapter > div { max-width: 36em; margin: 0 auto; }
+  .chapter h2 { font-weight: 400; font-size: 1.1rem; margin: 0 0 1.2em; display: flex; justify-content: space-between; gap: 1em; letter-spacing: .04em; font-variant: small-caps; }
+  .chapter h2 small { font-variant: normal; letter-spacing: 0; font-size: .8rem; opacity: .6; font-variant-numeric: tabular-nums; }
+  .chapter p { margin: 0 0 1em; text-align: justify; hyphens: auto; }
+  .dropcap { float: left; margin: .12em .55em 0 0; width: calc(var(--lines) * var(--lh) * var(--fs)); height: calc(var(--lines) * var(--lh) * var(--fs)); cursor: pointer; }
+  .dropcap svg { width: 100%; height: 100%; }
+  .sc { font-variant: small-caps; letter-spacing: .08em; }
+  .extras { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 24px; margin-top: 24px; }
+  .extras figure { margin: 0; text-align: center; font-size: .85rem; opacity: .9; }
+  .extras figcaption { margin-top: 6px; opacity: .65; }
+  .headline { display: block; margin: 0 auto 32px; max-width: 100%; }
+  footer { padding: 32px 24px 64px; text-align: center; font-size: .85rem; opacity: .6; }
+  @media (max-width: 600px) { :root { --fs: 17px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Procedural lettering</h1>
+  <span class="seed" id="seed"></span>
+  <button id="regen">Regenerate</button>
+  <button id="replay">Replay</button>
+</header>
+
+<main id="main"></main>
+
+<footer>Click any initial to regenerate it alone. Every look is a point in the same space: glyph style × fill × outline × frame × ornament × palette × texture × choreography.</footer>
+
+<script type="module">
+import { createDropCap, createHeadline, RECIPES, PAGE_THEMES, VIDEO_RECIPES, EXTRA_RECIPES, randomLook, mulberry32 } from './lettering.js';
+
+const CHAPTERS = [
+  { recipe: 'hero', lines: 4, title: 'Moby-Dick', author: 'Herman Melville', text: [
+    'Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to sea as soon as I can.',
+    'This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the ship. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the ocean with me.' ] },
+  { recipe: 'delft', lines: 5, title: 'Alice’s Adventures in Wonderland', author: 'Lewis Carroll', text: [
+    'Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book her sister was reading, but it had no pictures or conversations in it, “and what is the use of a book,” thought Alice “without pictures or conversations?” So she was considering in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit with pink eyes ran close by her.',
+    'There was nothing so very remarkable in that; nor did Alice think it so very much out of the way to hear the Rabbit say to itself, “Oh dear! Oh dear! I shall be late!”' ] },
+  { recipe: 'rust', lines: 4, title: 'The Count of Monte Cristo', author: 'Alexandre Dumas', text: [
+    'On the 24th of February, 1815, the look-out at Notre-Dame de la Garde signalled the three-master, the Pharaon from Smyrna, Trieste, and Naples. As usual, a pilot put off immediately, and rounding the Château d’If, got on board the vessel between Cape Morgiou and Rion island. Immediately, and according to custom, the ramparts of Fort Saint-Jean were covered with spectators; it is always an event at Marseilles for a ship to come into port, especially when this ship, like the Pharaon, has been built, rigged, and laden at the old Phocee docks, and belongs to an owner of the city.' ] },
+  { recipe: 'sticker', lines: 3, title: 'Frankenstein', author: 'Mary Shelley', text: [
+    'You will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking. I am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight.' ] },
+  { recipe: 'woodcut', lines: 5, title: 'Emma', author: 'Jane Austen', text: [
+    'Emma Woodhouse, handsome, clever, and rich, with a comfortable home and happy disposition, seemed to unite some of the best blessings of existence; and had lived nearly twenty-one years in the world with very little to distress or vex her. She was the youngest of the two daughters of a most affectionate, indulgent father; and had, in consequence of her sister’s marriage, been mistress of his house from a very early period. Her mother had died too long ago for her to have more than an indistinct remembrance of her caresses; and her place had been supplied by an excellent woman as governess, who had fallen little short of a mother in affection.',
+    'Sixteen years had Miss Taylor been in Mr. Woodhouse’s family, less as a governess than a friend, very fond of both daughters, but particularly of Emma.' ] },
+  { recipe: 'marigold', lines: 3, title: 'Treasure Island', author: 'Robert Louis Stevenson', text: [
+    'Squire Trelawney, Dr. Livesey, and the rest of these gentlemen having asked me to write down the whole particulars about Treasure Island, from the beginning to the end, keeping nothing back but the bearings of the island, and that only because there is still treasure not yet lifted, I take up my pen in the year of grace 17—, and go back to the time when my father kept the Admiral Benbow inn and the brown old seaman with the sabre cut first took up his lodging under our roof.' ] },
+  { recipe: 'silhouette', lines: 4, title: 'Don Quixote', author: 'Miguel de Cervantes', text: [
+    'Verily and truly all those who find pleasure in histories like this ought to show their gratitude to Cide Hamete, its original author, for the scrupulous care he has taken to set before us all its minute particulars, not leaving anything, however trifling it may be, that he does not make clear and plain. He portrays the thoughts, he reveals the fancies, he answers implied questions, clears up doubts, sets objections at rest, and, in a word, makes plain the smallest points the most inquisitive can desire to know.' ] },
+  { recipe: 'badge', lines: 3, title: 'A Portrait of the Artist as a Young Man', author: 'James Joyce', text: [
+    'He drained his third cup of watery tea to the dregs and set to chewing the crusts of fried bread that were scattered near him, staring into the dark pool of the jar. The yellow dripping had been scooped out like a boghole and the pool under it brought back to his memory the dark turf-coloured water of the bath in Clongowes. The box of pawn tickets at his elbow had just been rifled and he took up idly one after another in his greasy fingers the blue and white dockets.' ] },
+  { recipe: 'maze', lines: 3, title: 'Frankenstein', author: 'Mary Shelley', text: [
+    'I am by birth a Genevese, and my family is one of the most distinguished of that republic. My ancestors had been for many years counsellors and syndics, and my father had filled several public situations with honour and reputation. He was respected by all who knew him for his integrity and indefatigable attention to public business. He passed his younger days perpetually occupied by the affairs of his country; a variety of circumstances had prevented his marrying early, nor was it until the decline of life that he became a husband and the father of a family.' ] },
+  { recipe: 'stone', lines: 3, title: 'Great Expectations', author: 'Charles Dickens', text: [
+    'My hands had been dressed twice or thrice in the night, and again in the morning. My left arm was a good deal burned to the elbow, and, less severely, as high as the shoulder; it was very painful, but the flames had set in that direction, and I felt thankful it was no worse. My right hand was not so badly burnt but that I could move the fingers. It was bandaged, of course, but much less inconveniently than my left hand and arm; those I carried in a sling.' ] },
+  { recipe: 'fuchsia', lines: 3, title: 'The Count of Monte Cristo', author: 'Alexandre Dumas', text: [
+    'Not on the same night as he had stated, but the next morning, the Count of Monte Cristo went out by the Barrière d’Enfer, taking the road to Orléans. Leaving the village of Linas, without stopping at the telegraph, which flourished its great bony arms as he passed, the count reached the tower of Montlhéry, situated, as everyone knows, upon the highest point of the plain of that name. At the foot of the hill the count dismounted and began to ascend by a little winding path, about eighteen inches wide.' ] },
+  { recipe: 'diamond', lines: 3, title: 'Emma', author: 'Jane Austen', text: [
+    'One thing only was wanting to make the prospect of the ball completely satisfactory to Emma—its being fixed for a day within the granted term of Frank Churchill’s stay in Surry; for, in spite of Mr. Weston’s confidence, she could not think it so very impossible that the Churchills might not allow their nephew to remain a day beyond his fortnight. But this was not judged feasible. The preparations must take their time, nothing could be properly ready till the third week were entered on.' ] },
+  { recipe: 'rainbow', lines: 3, title: 'The Odyssey', author: 'Homer, translated by Samuel Butler', text: [
+    'Ulysses was left in the cloister, pondering on the means whereby with Minerva’s help he might be able to kill the suitors. Presently he said to Telemachus, “Telemachus, we must get the armour together and take it down inside. Make some excuse when the suitors ask you why you have removed it. Say that you have taken it to be out of the way of the smoke, inasmuch as it is no longer what it was when Ulysses went away, but has become soiled and begrimed with soot.”' ] },
+  { recipe: 'ring', lines: 3, title: 'Robinson Crusoe', author: 'Daniel Defoe', text: [
+    'Xury was dreadfully frighted, and indeed so was I too; but we were both more frighted when we heard one of these mighty creatures come swimming towards our boat; we could not see him, but we might hear him by his blowing to be a monstrous huge and furious beast. Xury said it was a lion, and it might be so for aught I know; but poor Xury cried to me to weigh the anchor and row away; “No,” says I, “Xury; we can slip our cable, with the buoy to it, and go off to sea; they cannot follow us far.”' ] },
+  { recipe: 'oxblood', lines: 2, title: 'Crime and Punishment', author: 'Fyodor Dostoevsky', text: [
+    'Zossimov was a tall, fat man with a puffy, colourless, clean-shaven face and straight flaxen hair. He wore spectacles, and a big gold ring on his fat finger. He was twenty-seven. He had on a light grey fashionable loose coat, light summer trousers, and everything about him loose, fashionable and spick and span; his linen was irreproachable, his watch-chain was massive. In manner he was slow and, as it were, nonchalant, and at the same time studiously free and easy; he made efforts to conceal his self-importance, but it was apparent at every instant.' ] },
+];
+
+const EXTRAS = [
+  { recipe: 'knotwork', letter: 'L' }, { recipe: 'nouveau', letter: 'D' }, { recipe: 'circuit', letter: 'T' },
+  { recipe: 'glass', letter: 'W' }, { recipe: 'coral', letter: 'C' }, { recipe: 'contourFrame', letter: 'H' },
+];
+
+const params = new URLSearchParams(location.search);
+let master = +(params.get('seed') || Math.floor(Math.random() * 9000) + 1000);
+const seedEl = document.getElementById('seed');
+const main = document.getElementById('main');
+const caps = []; // {svg, mount, make}
+
+function themeStyle(name) {
+  const t = PAGE_THEMES[name] || PAGE_THEMES.parchment;
+  return `--page:${t.page};--text:${t.text};--rule:${t.rule}`;
+}
+function splitWord(text) {
+  const m = text.match(/^(\S)(\S*)(.*)$/s);
+  return { first: m[1], rest: m[2], tail: m[3] };
+}
+function px(v) { return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(v)); }
+function capSize(lines) { return Math.round(lines * px('--lh') * px('--fs')); }
+
+function mountCap(mount, make) {
+  const svg = make();
+  mount.replaceChildren(svg);
+  const entry = caps.find((c) => c.mount === mount);
+  if (entry) entry.svg = svg; else caps.push({ mount, svg, make });
+  return svg;
+}
+
+function buildChapter(ch, i) {
+  const sec = document.createElement('section');
+  sec.className = 'chapter';
+  sec.style.cssText = themeStyle(RECIPES[ch.recipe].theme);
+  const wrap = document.createElement('div');
+  const h = document.createElement('h2');
+  h.innerHTML = `<span>${ch.title} · ${ch.author}</span><small></small>`;
+  wrap.appendChild(h);
+  const { first, rest, tail } = splitWord(ch.text[0]);
+  const p = document.createElement('p');
+  const mount = document.createElement('span');
+  mount.className = 'dropcap';
+  mount.style.setProperty('--lines', ch.lines);
+  p.appendChild(mount);
+  const sc = document.createElement('span'); sc.className = 'sc'; sc.textContent = rest;
+  p.appendChild(sc);
+  p.appendChild(document.createTextNode(tail));
+  wrap.appendChild(p);
+  for (const t of ch.text.slice(1)) { const q = document.createElement('p'); q.textContent = t; wrap.appendChild(q); }
+  sec.appendChild(wrap);
+  let seed = master + i * 7;
+  const make = () => {
+    const svg = createDropCap({ letter: first, recipe: ch.recipe, seed, size: capSize(ch.lines) });
+    h.querySelector('small').textContent = `${ch.recipe} · ${seed}`;
+    return svg;
+  };
+  mount.addEventListener('click', () => { seed = Math.floor(Math.random() * 1e6); mountCap(mount, make); });
+  caps.push({ mount, make, svg: null, reseed: (m) => { seed = m + i * 7; } });
+  return sec;
+}
+
+function buildExtras() {
+  const sec = document.createElement('section');
+  sec.className = 'chapter';
+  sec.style.cssText = themeStyle('cream');
+  const wrap = document.createElement('div');
+  wrap.style.maxWidth = '60em';
+  const headMount = document.createElement('div');
+  headMount.className = 'headline';
+  wrap.appendChild(headMount);
+  const grid = document.createElement('div');
+  grid.className = 'extras';
+  EXTRAS.forEach((e, k) => {
+    const fig = document.createElement('figure');
+    const mount = document.createElement('span');
+    mount.className = 'dropcap';
+    mount.style.cssText = 'float:none;display:block;width:150px;height:150px;margin:0 auto';
+    const cap = document.createElement('figcaption');
+    fig.append(mount, cap);
+    grid.appendChild(fig);
+    let seed = master + 100 + k * 13;
+    const make = () => { cap.textContent = `${RECIPES[e.recipe].title} · ${seed}`; return createDropCap({ letter: e.letter, recipe: e.recipe, seed, size: 150 }); };
+    mount.addEventListener('click', () => { seed = Math.floor(Math.random() * 1e6); mountCap(mount, make); });
+    caps.push({ mount, make, svg: null, reseed: (m) => { seed = m + 100 + k * 13; } });
+  });
+  // a random point in the axis space, re-rolled on every regenerate
+  const fig = document.createElement('figure');
+  const mount = document.createElement('span');
+  mount.className = 'dropcap';
+  mount.style.cssText = 'float:none;display:block;width:150px;height:150px;margin:0 auto';
+  const cap = document.createElement('figcaption');
+  fig.append(mount, cap);
+  grid.appendChild(fig);
+  let seed = master + 999;
+  const makeRandom = () => {
+    const look = randomLook(mulberry32(seed));
+    cap.textContent = `random axes · ${seed}`;
+    return createDropCap({ letter: 'ABCDEFGHKMNOPQRSTUVWXYZ'[seed % 23], ...look, seed, size: 150 });
+  };
+  mount.addEventListener('click', () => { seed = Math.floor(Math.random() * 1e6); mountCap(mount, makeRandom); });
+  caps.push({ mount, make: makeRandom, svg: null, reseed: (m) => { seed = m + 999; } });
+  wrap.appendChild(grid);
+  sec.appendChild(wrap);
+  // headline: whole-word mode, kinetic morph between seeds
+  let hseed = master;
+  const makeHead = () => createHeadline({ text: 'Beyond', style: 'script', size: 150, seed: hseed, ornament: { name: 'vines', stars: 1.4 }, palette: 'paper', frame: 'none', animate: 'auto' });
+  caps.push({ mount: headMount, make: makeHead, svg: null, reseed: (m) => { hseed = m; } });
+  setInterval(() => { const c = caps.find((x) => x.mount === headMount); if (c?.svg && !document.hidden && inView(headMount)) { hseed = Math.floor(Math.random() * 1e6); c.svg.morphTo(hseed, 1200); } }, 5000);
+  return sec;
+}
+
+function inView(el) { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; }
+
+async function build() {
+  await document.fonts.ready;
+  CHAPTERS.forEach((ch, i) => main.appendChild(buildChapter(ch, i)));
+  main.appendChild(buildExtras());
+  renderAll();
+  // replay a cap when it scrolls into view the first time
+  const io = new IntersectionObserver((entries) => {
+    for (const en of entries) if (en.isIntersecting) { const c = caps.find((x) => x.mount === en.target); if (c?.svg && !c.played) { c.played = true; c.svg.replay(); } }
+  }, { threshold: 0.4 });
+  for (const c of caps) io.observe(c.mount);
+}
+function renderAll() {
+  seedEl.textContent = `seed ${master}`;
+  history.replaceState(null, '', `?seed=${master}`);
+  for (const c of caps) { c.played = false; mountCap(c.mount, c.make); }
+}
+document.getElementById('regen').addEventListener('click', () => {
+  master = Math.floor(Math.random() * 9000) + 1000;
+  for (const c of caps) c.reseed?.(master);
+  renderAll();
+});
+document.getElementById('replay').addEventListener('click', () => { for (const c of caps) c.svg?.replay(); });
+build();
+</script>
+</body>
+</html>
