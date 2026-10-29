@@ -1,0 +1,38 @@
+{
+  "id": "sticker",
+  "name": "Pattern-filled blackletter, sticker outline",
+  "letter": "Q",
+  "spec": {
+    "letter": "Q",
+    "style": "blackletter",
+    "fill": "pattern",
+    "outline": "sticker",
+    "frame": {
+      "shape": "none",
+      "style": "borderless"
+    },
+    "ornament": [],
+    "palette": "sumi",
+    "texture": [],
+    "animate": "pop",
+    "seed": 4256,
+    "size": 160,
+    "duration": 2500,
+    "fillOptions": {
+      "module": "florets",
+      "base": "#111111",
+      "color": "#F4F0E6",
+      "edge": false
+    },
+    "recipe": "sticker"
+  },
+  "tags": [
+    "recipe",
+    "sticker",
+    "blackletter",
+    "sumi",
+    "none"
+  ],
+  "created": "2026-10-29T09:04:09.348Z",
+  "notes": "seeded from recipe \"sticker\""
+}

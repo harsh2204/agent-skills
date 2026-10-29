@@ -1,0 +1,44 @@
+{
+  "id": "silhouette",
+  "name": "Black foliage silhouette, no frame",
+  "letter": "L",
+  "spec": {
+    "letter": "L",
+    "style": "uncial",
+    "fill": "solid",
+    "outline": "keyline",
+    "frame": {
+      "style": "borderless",
+      "shape": "circle"
+    },
+    "ornament": [
+      {
+        "name": "vines",
+        "leaves": 1.8,
+        "stars": 0,
+        "dots": 0.3,
+        "stroke": 1.3,
+        "density": 1.1,
+        "leafLen": 12,
+        "midrib": false
+      }
+    ],
+    "palette": "sumi",
+    "texture": [],
+    "animate": "auto",
+    "seed": 4277,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "silhouette"
+  },
+  "tags": [
+    "recipe",
+    "silhouette",
+    "vines",
+    "uncial",
+    "sumi",
+    "circle"
+  ],
+  "created": "2026-10-29T09:04:09.664Z",
+  "notes": "seeded from recipe \"silhouette\""
+}

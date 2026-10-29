@@ -1,0 +1,36 @@
+{
+  "id": "circuit",
+  "name": "Copper circuit traces",
+  "letter": "R",
+  "spec": {
+    "letter": "R",
+    "style": "slab",
+    "fill": "solid",
+    "outline": "none",
+    "frame": {
+      "shape": "square",
+      "style": "solid"
+    },
+    "ornament": [
+      {
+        "name": "circuit"
+      }
+    ],
+    "palette": "copper",
+    "texture": [],
+    "animate": "auto",
+    "seed": 4361,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "circuit"
+  },
+  "tags": [
+    "recipe",
+    "circuit",
+    "slab",
+    "copper",
+    "square"
+  ],
+  "created": "2026-10-29T09:04:10.762Z",
+  "notes": "seeded from recipe \"circuit\""
+}

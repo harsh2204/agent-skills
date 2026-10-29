@@ -1,0 +1,36 @@
+{
+  "id": "rust",
+  "name": "Rust wood-grain isolines",
+  "letter": "J",
+  "spec": {
+    "letter": "J",
+    "style": "roman",
+    "fill": "solid",
+    "outline": "none",
+    "frame": {
+      "shape": "none",
+      "style": "borderless"
+    },
+    "ornament": [
+      {
+        "name": "contour"
+      }
+    ],
+    "palette": "rust",
+    "texture": [],
+    "animate": "ripple",
+    "seed": 4249,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "rust"
+  },
+  "tags": [
+    "recipe",
+    "rust",
+    "contour",
+    "roman",
+    "none"
+  ],
+  "created": "2026-10-29T09:04:09.200Z",
+  "notes": "seeded from recipe \"rust\""
+}

@@ -1,0 +1,46 @@
+{
+  "id": "stone",
+  "name": "Grey stone stipple letter on a beige tile",
+  "letter": "G",
+  "spec": {
+    "letter": "G",
+    "style": "uncial",
+    "fill": "stipple",
+    "outline": "none",
+    "frame": {
+      "shape": "square",
+      "style": "solid"
+    },
+    "ornament": [
+      {
+        "name": "stipple",
+        "density": 0.5,
+        "rMin": 1.6,
+        "rMax": 4,
+        "dot": 0.3
+      }
+    ],
+    "palette": "stone",
+    "texture": [
+      "grain"
+    ],
+    "animate": "pop",
+    "seed": 4298,
+    "size": 160,
+    "duration": 2500,
+    "fillOptions": {
+      "density": 1.25,
+      "dot": 0.55
+    },
+    "recipe": "stone"
+  },
+  "tags": [
+    "recipe",
+    "stone",
+    "stipple",
+    "uncial",
+    "square"
+  ],
+  "created": "2026-10-29T09:04:09.948Z",
+  "notes": "seeded from recipe \"stone\""
+}

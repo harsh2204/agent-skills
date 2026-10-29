@@ -1,0 +1,43 @@
+{
+  "id": "oxblood",
+  "name": "Small dark-red damask square, white letter",
+  "letter": "P",
+  "spec": {
+    "letter": "P",
+    "style": "roman",
+    "fill": "solid",
+    "outline": "none",
+    "frame": {
+      "shape": "square",
+      "style": "solid"
+    },
+    "ornament": [
+      {
+        "name": "tiling",
+        "pitch": 4.2,
+        "motifs": [
+          "quatrefoil",
+          "diamond",
+          "dot"
+        ],
+        "scale": 0.75
+      }
+    ],
+    "palette": "oxblood",
+    "texture": [],
+    "animate": "pop",
+    "seed": 4333,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "oxblood"
+  },
+  "tags": [
+    "recipe",
+    "oxblood",
+    "tiling",
+    "roman",
+    "square"
+  ],
+  "created": "2026-10-29T09:04:10.427Z",
+  "notes": "seeded from recipe \"oxblood\""
+}

@@ -1,0 +1,105 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>procedural-lettering harness</title>
+<style>
+  html, body { margin: 0; background: #F4F0E6; }
+  #stage { display: inline-block; line-height: 0; }
+  #stage svg { display: block; }
+</style>
+<div id="stage"></div>
+<script type="module">
+  import * as PL from '/lettering.js';
+  window.PL = PL;
+  const stage = document.getElementById('stage');
+
+  // Renders one resolved spec into #stage. Returns size + serialised SVG with
+  // the engine stylesheet embedded so the file animates standalone.
+  window.plRender = async (spec, opts = {}) => {
+    await document.fonts.ready;
+    stage.replaceChildren();
+    const s = { ...spec };
+    if (s.letter == null && s.text) s.letter = s.text;
+    const svg = String(s.letter ?? 'A').length > 1 ? PL.createHeadline({ ...s, text: s.letter }) : PL.createDropCap(s);
+    const bg = opts.bg === 'palette' || !opts.bg ? svg.palette.page : opts.bg;
+    stage.style.background = bg;
+    stage.style.padding = (opts.pad ?? 0) + 'px';
+    document.body.style.background = bg;
+    stage.appendChild(svg);
+    const clone = svg.cloneNode(true);
+    const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    style.textContent = document.getElementById('procedural-lettering-style').textContent;
+    clone.insertBefore(style, clone.firstChild);
+    return {
+      width: svg.width.baseVal.value, height: svg.height.baseVal.value, page: svg.palette.page,
+      svg: new XMLSerializer().serializeToString(clone),
+      elements: svg.querySelectorAll('.pl-ornament *').length,
+    };
+  };
+
+  window.plSeek = (ms) => { for (const a of document.getAnimations()) { a.pause(); a.currentTime = ms; } };
+  window.plFinish = () => { for (const a of document.getAnimations()) a.finish(); };
+
+  // Tiles PNG data-URLs into one labelled canvas; returns a PNG data-URL.
+  window.plSheet = async (tiles, o) => {
+    const imgs = await Promise.all(tiles.map((t) => new Promise((ok, err) => { const im = new Image(); im.onload = () => ok(im); im.onerror = err; im.src = t.src; })));
+    const cols = o.cols, tile = o.tile, labelH = o.labels === false ? 0 : 18, gap = 10;
+    const rows = Math.ceil(imgs.length / cols);
+    const c = document.createElement('canvas');
+    c.width = gap + cols * (tile + gap);
+    c.height = gap + rows * (tile + labelH + gap);
+    const g = c.getContext('2d');
+    g.fillStyle = o.bg || '#F4F0E6'; g.fillRect(0, 0, c.width, c.height);
+    g.font = '12px system-ui, sans-serif'; g.textBaseline = 'top'; g.textAlign = 'center';
+    imgs.forEach((im, i) => {
+      const x = gap + (i % cols) * (tile + gap), y = gap + Math.floor(i / cols) * (tile + labelH + gap);
+      const k = Math.min(tile / im.width, tile / im.height);
+      const w = Math.round(im.width * k), h = Math.round(im.height * k);
+      g.drawImage(im, x + (tile - w) / 2, y + (tile - h) / 2, w, h);
+      if (labelH) { g.fillStyle = o.fg || '#1d1a16'; g.fillText(tiles[i].label, x + tile / 2, y + tile + 4, tile); }
+    });
+    document.body.replaceChildren(c);
+    return c.toDataURL('image/png');
+  };
+
+  // Samples every ornament element against the raster field (ported from verify.mjs).
+  window.plAudit = () => {
+    const out = [];
+    for (const svg of document.querySelectorAll('svg.pl-svg')) {
+      const f = svg.field;
+      if (!f) continue;
+      const res = { samples: 0, inLetter: 0, inGlyph: 0, outside: 0, elements: 0, worst: [] };
+      let cur = null;
+      const EPS = 0.05;
+      const test = (x, y) => {
+        res.samples++;
+        let outside = 1, letter = 1, inner = 1;
+        for (const dx of [-EPS, EPS]) for (const dy of [-EPS, EPS]) {
+          const i = Math.floor(x / f.cell + dx), j = Math.floor(y / f.cell + dy);
+          if (i < 0 || j < 0 || i >= f.cols || j >= f.rows) continue;
+          const k = j * f.cols + i;
+          outside &= f.outside[k]; letter &= f.letter[k]; inner &= f.inner[k];
+        }
+        if (outside) res.outside++;
+        if (letter) res.inLetter++;
+        if (inner) res.inGlyph++;
+        if (outside || letter || inner) cur.bad++;
+      };
+      for (const e of svg.querySelectorAll('.pl-ornament path, .pl-ornament circle, .pl-ornament polygon, .pl-ornament line')) {
+        res.elements++;
+        if (typeof e.getTotalLength !== 'function') continue;
+        let L = 0;
+        try { L = e.getTotalLength(); } catch { continue; }
+        cur = { bad: 0, desc: `${e.tagName} ${(e.getAttribute('d') || `r=${e.getAttribute('r')} @${e.getAttribute('cx')},${e.getAttribute('cy')}`).slice(0, 48)}` };
+        if (!isFinite(L) || L <= 0) { if (e.tagName === 'circle') test(+e.getAttribute('cx'), +e.getAttribute('cy')); }
+        else {
+          const n = Math.max(2, Math.min(400, Math.ceil(L / 1.5)));
+          for (let s = 0; s <= n; s++) { const p = e.getPointAtLength((L * s) / n); test(p.x, p.y); }
+        }
+        if (cur.bad) { res.worst.push(cur); res.worst.sort((a, b) => b.bad - a.bad); res.worst.length = Math.min(res.worst.length, 3); }
+      }
+      out.push(res);
+    }
+    return out;
+  };
+  window.plReady = true;
+</script>

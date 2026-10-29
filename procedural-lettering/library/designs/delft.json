@@ -1,0 +1,47 @@
+{
+  "id": "delft",
+  "name": "Delft porcelain medallion",
+  "letter": "C",
+  "spec": {
+    "letter": "C",
+    "style": "script",
+    "fill": "pattern",
+    "outline": "none",
+    "frame": {
+      "style": "solid",
+      "shape": "circle",
+      "rim": "#C9A24A"
+    },
+    "ornament": [
+      {
+        "name": "porcelain"
+      }
+    ],
+    "palette": "delft",
+    "texture": [],
+    "animate": "pop",
+    "seed": 4242,
+    "size": 160,
+    "duration": 2500,
+    "fillOptions": {
+      "module": "porcelain",
+      "base": "#ffffff",
+      "edgeWidth": 1.6,
+      "params": {
+        "density": 2.2,
+        "motifs": 0,
+        "gap": 1.1
+      }
+    },
+    "recipe": "delft"
+  },
+  "tags": [
+    "recipe",
+    "delft",
+    "porcelain",
+    "script",
+    "circle"
+  ],
+  "created": "2026-10-29T09:04:09.018Z",
+  "notes": "seeded from recipe \"delft\""
+}

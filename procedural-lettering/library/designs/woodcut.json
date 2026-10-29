@@ -1,0 +1,49 @@
+{
+  "id": "woodcut",
+  "name": "Woodcut: hatch ground, engraved foliage, red roman with white keyline",
+  "letter": "X",
+  "spec": {
+    "letter": "X",
+    "style": "roman",
+    "fill": "solid",
+    "outline": "keyline",
+    "frame": {
+      "style": "solid",
+      "shape": "square",
+      "lineWidth": 3
+    },
+    "ornament": [
+      {
+        "name": "hatch"
+      },
+      {
+        "name": "vines",
+        "density": 1.1,
+        "leafStyle": "engraved",
+        "stars": 0,
+        "dots": 0.3,
+        "stroke": 1.2,
+        "leaves": 1.4,
+        "halo": true,
+        "eyes": false
+      }
+    ],
+    "palette": "woodcut",
+    "texture": [],
+    "animate": "auto",
+    "seed": 4263,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "woodcut"
+  },
+  "tags": [
+    "recipe",
+    "woodcut",
+    "hatch",
+    "vines",
+    "roman",
+    "square"
+  ],
+  "created": "2026-10-29T09:04:09.446Z",
+  "notes": "seeded from recipe \"woodcut\""
+}

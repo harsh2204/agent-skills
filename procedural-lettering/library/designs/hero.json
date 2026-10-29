@@ -1,0 +1,37 @@
+{
+  "id": "hero",
+  "name": "White blackletter on black, growing vines, leaves and stars",
+  "letter": "C",
+  "spec": {
+    "letter": "C",
+    "style": "blackletter",
+    "fill": "solid",
+    "outline": "none",
+    "frame": {
+      "shape": "square",
+      "style": "solid"
+    },
+    "ornament": [
+      {
+        "name": "vines"
+      }
+    ],
+    "palette": "vermilion",
+    "texture": [],
+    "animate": "auto",
+    "seed": 4340,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "hero"
+  },
+  "tags": [
+    "recipe",
+    "hero",
+    "vines",
+    "blackletter",
+    "vermilion",
+    "square"
+  ],
+  "created": "2026-10-29T09:04:10.512Z",
+  "notes": "seeded from recipe \"hero\""
+}

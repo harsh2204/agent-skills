@@ -14,7 +14,18 @@ el.appendChild(svg);           // svg.seed, svg.replay(), svg.regenerate({seed: 
 const word = createHeadline({ text: 'Beyond', style: 'script', ornament: 'nouveau', frame: 'none' });
 ```
 
-Reference files: [algorithms.md](algorithms.md) (mask, distance field, turtle, modules), [styles.md](styles.md) (axes, palettes, the 15 named recipes), [animation.md](animation.md) (choreography, reduced motion, morph). Demo: `demo.html` (serve statically, e.g. `python3 -m http.server`; ES modules do not load from `file://`). Verification: `node verify.mjs` serves the directory, loads the demo in headless Chromium, fails on any console error or 4xx, samples every ornament path against the raster field (nothing in the letter mask, nothing outside the frame) and writes `screenshots/` (hero mid-growth and final close-ups, full gallery, all recipes at 2×). Browser and Playwright paths are constants at the top of the script.
+Reference files: [algorithms.md](algorithms.md) (mask, distance field, turtle, modules), [styles.md](styles.md) (axes, palettes, the 15 named recipes), [animation.md](animation.md) (choreography, reduced motion, morph), [tools.md](tools.md) (the `tools/pl.mjs` CLI and the design library). Demo: `demo.html` (serve statically, e.g. `python3 -m http.server`; ES modules do not load from `file://`). Verification: `node verify.mjs` (wrapper for `node tools/pl.mjs verify --library --demo`) renders every library design and the demo in headless Chromium, fails on any console error or 4xx, and samples every ornament path against the raster field (nothing in the letter mask, nothing outside the frame).
+
+## Agent workflow
+
+Everything below runs headless through `node tools/pl.mjs <command>` (details and flags in [tools.md](tools.md); Playwright and Chromium install themselves into `tools/.cache/` on first use).
+
+1. **Look in the library first.** `node tools/pl.mjs find <letter|module|palette|tag>` or `list`; `library/thumbs/<id>.png` shows each stored design. Reuse a hit as is, or copy its id as the base of a new spec.
+2. **Adapt a reference spec.** Pass the id plus overrides: `render hero --letter M --palette copper --seed 31`. Prefer axis combinations the library does not have yet (`find --frame circle --ornament contour` returning nothing is the signal); change one axis at a time and re-seed before touching parameters.
+3. **Render** to `out/`: SVG (animates standalone), final-state PNG and the resolved spec JSON. Look at the PNG at the real size.
+4. **Review the animation** with `frames <design> --fps 10 --duration 2.8 --out out/x-frames` and `sheet out/x-frames --out out/x-sheet.png`; one contact sheet shows the whole choreography (add `--mp4`/`--gif` when a clip is wanted).
+5. **Verify**: `verify <design>` must print `clean` (no console errors, zero samples in the glyph or outside the frame).
+6. **Save** with `save <spec.json|flags> --name "…" --tags a,b`. Exact duplicates (letter + axes + seed) are rejected; near-duplicates (same letter, ornament, frame, palette, style) are rejected with a similarity score so the library stays diverse; `--force` overrides. `gallery` renders the whole library into one sheet for a final look.
 
 ## Workflow
 
@@ -22,7 +33,7 @@ Reference files: [algorithms.md](algorithms.md) (mask, distance field, turtle, m
 2. **Pick a point in the axis space, not a preset.** Every look is `style × fill × outline × frame × ornament × palette × texture × animate`. Start from a named recipe (`recipe: 'hero'`) and override one axis at a time. Bundle orthogonal choices; never hard-code colours into modules.
 3. **Seed everything.** `seed` (number or string) feeds `mulberry32`; same options + same seed = same SVG. Expose the seed in the UI; regenerate = new seed, replay = restart choreography without regenerating.
 4. **Render at display size.** Stroke widths and grid resolution derive from `size`; do not render at 200 px and scale to 60 px with CSS (strokes vanish). Minimum sensible size ≈ 48 px.
-5. **Check the quality list** below against a screenshot at the real size before shipping (`node verify.mjs`, then look at `screenshots/`); iterate on seeds and densities, not on hand edits of paths.
+5. **Check the quality list** below against a render at the real size before shipping (`node tools/pl.mjs render … --out out/`, then `verify`); iterate on seeds and densities, not on hand edits of paths.
 
 ## Architecture (src/)
 

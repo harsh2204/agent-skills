@@ -1,0 +1,37 @@
+{
+  "id": "diamond",
+  "name": "Diamond frame, mosaic ground",
+  "letter": "U",
+  "spec": {
+    "letter": "U",
+    "style": "roman",
+    "fill": "solid",
+    "outline": "none",
+    "frame": {
+      "shape": "diamond",
+      "style": "solid"
+    },
+    "ornament": [
+      {
+        "name": "mosaic",
+        "size": 2.8
+      }
+    ],
+    "palette": "byzantine",
+    "texture": [],
+    "animate": "pop",
+    "seed": 4312,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "diamond"
+  },
+  "tags": [
+    "recipe",
+    "diamond",
+    "mosaic",
+    "roman",
+    "byzantine"
+  ],
+  "created": "2026-10-29T09:04:10.146Z",
+  "notes": "seeded from recipe \"diamond\""
+}

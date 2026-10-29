@@ -1,0 +1,45 @@
+{
+  "id": "ring",
+  "name": "Red ring frame, inline letter",
+  "letter": "I",
+  "spec": {
+    "letter": "I",
+    "style": "roman",
+    "fill": "keyline",
+    "outline": "none",
+    "frame": {
+      "style": "stroked",
+      "shape": "circle",
+      "lineWidth": 3
+    },
+    "ornament": [
+      {
+        "name": "tiling",
+        "pitch": 7,
+        "motifs": [
+          "ring",
+          "dot"
+        ],
+        "alternate": false,
+        "scale": 0.4
+      }
+    ],
+    "palette": "carmine",
+    "texture": [],
+    "animate": "pop",
+    "seed": 4326,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "ring"
+  },
+  "tags": [
+    "recipe",
+    "ring",
+    "tiling",
+    "roman",
+    "carmine",
+    "circle"
+  ],
+  "created": "2026-10-29T09:04:10.347Z",
+  "notes": "seeded from recipe \"ring\""
+}

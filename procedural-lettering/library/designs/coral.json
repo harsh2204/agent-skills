@@ -1,0 +1,37 @@
+{
+  "id": "coral",
+  "name": "Space-colonisation coral",
+  "letter": "F",
+  "spec": {
+    "letter": "F",
+    "style": "roman",
+    "fill": "solid",
+    "outline": "none",
+    "frame": {
+      "shape": "square",
+      "style": "solid"
+    },
+    "ornament": [
+      {
+        "name": "colonization"
+      }
+    ],
+    "palette": "vermilion",
+    "texture": [],
+    "animate": "auto",
+    "seed": 4375,
+    "size": 160,
+    "duration": 2500,
+    "recipe": "coral"
+  },
+  "tags": [
+    "recipe",
+    "coral",
+    "colonization",
+    "roman",
+    "vermilion",
+    "square"
+  ],
+  "created": "2026-10-29T09:04:10.947Z",
+  "notes": "seeded from recipe \"coral\""
+}
